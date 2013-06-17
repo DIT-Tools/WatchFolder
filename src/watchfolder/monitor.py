@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 
 
-
 import time
 import threading
 from watchdog.observers import *
 from watchdog.events import *
 
 
-
 class FileInstance(object):
 
     def __init__(self, path):
-
         self._path = path
         self._modification_time = time.time()
 
@@ -31,62 +28,44 @@ class FileInstance(object):
         return time.time() - self._modification_time
 
 
-
 class Monitor(FileSystemEventHandler):
 
-
-
-    def __init__(self, path, recursive = False):
-        
+    def __init__(self, path, callback, recursive = False, delay = 1.0):       
         self._thread = threading.Thread(None, self._loop)
         self._stop_event = threading.Event()
         self._observer = Observer()
         self._path = path
+        self._callback = callback
         self._is_recursive = recursive
-        self._files = []
-        
+        self._delay = delay
+        self._files = []        
         self._observer.schedule(self,
                                 self._path,
                                 recursive = self._is_recursive)
 
-
-
-    def _loop(self):
-        
+    def _loop(self):        
         while not self._stop_event.isSet():
             for f in self._files[:]:
-                if f.elapsed_time() > 1.0:
+                if f.elapsed_time() > self._delay:
+                    self._callback(f.path)
                     self._files.remove(f)
-            self._stop_event.wait(1)
-            
+            self._stop_event.wait(1)            
         self._observer.join()
 
-
-
-    def start(self):
-        
+    def start(self):        
         self._observer.start()
         self._thread.start()
 
-
-
-    def stop(self):
-        
+    def stop(self):        
         self._observer.stop()
         self._stop_event.set()
         self._thread.join()
 
-
-
     def on_created(self, e):
-
         if not e.is_directory:
             self._files.append(FileInstance(e.src_path))
 
-
-
     def on_modified(self, e):
-
         if not e.is_directory:
             flag = True
             for f in self._files:
@@ -97,12 +76,8 @@ class Monitor(FileSystemEventHandler):
             if flag:
                 pass
 
-
-
     def on_moved(self, e):
         pass
-
-
 
     def on_deleted(self, e):
         pass
