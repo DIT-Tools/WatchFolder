@@ -6,7 +6,7 @@ WatchFolder
 Features
 --------
 
-[watchdog](https://github.com/gorakhargosh/watchdog) is used to get system events
+[watchdog](https://github.com/gorakhargosh/watchdog) is used to get system events.
 
 * folders monitoring
 * file sequence and video treatment
