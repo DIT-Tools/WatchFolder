@@ -52,4 +52,4 @@ Installation
 
 [setuptools](https://pypi.python.org/pypi/setuptools/0.7.2) installation :
 
-     python setup.py install
+    python setup.py install
