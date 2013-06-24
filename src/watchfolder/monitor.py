@@ -31,35 +31,40 @@ class Monitor( FileSystemEventHandler ):
 			self._stop_event.wait( 1 )
 		self._observer.join()
 
-	def load_conf( self, conf_file ):
+	def load_conf( self, configurationFile ):
 		conf = ConfigParser.ConfigParser()
-		conf.read( conf_file )
+		try:
+			conf.read( configurationFile )
+		except:
+			logging.error( " unable to read configuration file :" + configurationFile )
+
 		try:
 			module = __import__( conf.get( 'conf', 'module' ) )
-			for section in conf.sections():
-				if section == "conf":
-					continue
-
-				callback = ""
-				try:
-					callback = conf.get( section, 'callback' )
-				except:
-					logging.warning( " unable to found the callback in configuration file for " + section )
-					continue
-
-				try:
-					self._callbacks[section] = getattr( module, callback )
-				except:
-					logging.error( " unable to found callback (" + callback + ") for " + section )
-					continue
-
-				try:
-					delay = conf.getint( section, 'delay' )
-				except:
-					logging.warning( " set delay at 10 seconds for " + section )
-					self._delays[section] = 10
 		except:
-			pass
+			logging.error( " unable to found module in configuration file :" + configurationFile )
+
+		for section in conf.sections():
+			if section == "conf":
+				continue
+
+			callback = ""
+			try:
+				callback = conf.get( section, 'callback' )
+			except:
+				logging.warning( " unable to found the callback in configuration file for " + section )
+				continue
+
+			try:
+				self._callbacks[section] = getattr( module, callback )
+			except:
+				logging.error( " unable to found callback (" + callback + ") for " + section )
+				continue
+
+			try:
+				delay = conf.getint( section, 'delay' )
+			except:
+				logging.warning( " set delay at 10 seconds for " + section )
+				self._delays[section] = 10
 
 	def start( self ):
 		self._observer.start()
