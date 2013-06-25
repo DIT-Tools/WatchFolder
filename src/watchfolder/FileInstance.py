@@ -3,28 +3,28 @@ import logging
 
 class FileInstance( object ):
 	def __init__( self, path, callback, delay ):
-		self.path = path
-		self.delay = delay
-		self.callback = callback
-		self.modificationTime = time.time()
+		self._path = path
+		self._delay = delay
+		self._callback = callback
+		self._modificationTime = time.time()
 
 	@property
 	def path( self ):
-		return self.path
+		return self._path
 
 	@property
 	def delay( self ):
-		return self.delay
+		return self._delay
 
 	def set_modification( self ):
-		self.modificationTime = time.time()
+		self._modificationTime = time.time()
 
 	def elapsed_time( self ):
-		return time.time() - self.modificationTime
+		return time.time() - self._modificationTime
 
 	def launch( self ):
 		try:
-			self.callback( self._path )
+			self._callback( self._path )
 		except:
-			logging.error( "could not launch " + self.path )
+			logging.error( "could not launch " + self._path )
 			pass

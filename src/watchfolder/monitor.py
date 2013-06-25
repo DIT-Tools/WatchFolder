@@ -19,8 +19,8 @@ class Monitor( FileSystemEventHandler ):
 		self._observer = Observer()
 		self._files = list()
 		self._observer.schedule( self,
-								 self._path,
-								 recursive = self._is_recursive )
+					 self._path,
+					 recursive = self._is_recursive )
 
 	def loop( self ):
 		while not self._stop_event.isSet():
@@ -61,7 +61,7 @@ class Monitor( FileSystemEventHandler ):
 				continue
 
 			try:
-				delay = conf.getint( section, 'delay' )
+				self._delays[sections] = conf.getint( section, 'delay' )
 			except:
 				logging.warning( " set delay at 10 seconds for " + section )
 				self._delays[section] = 10
@@ -81,10 +81,9 @@ class Monitor( FileSystemEventHandler ):
 		path = e.src_path
 		for key in self._callbacks.keys():
 			if path.endswith(key):
-				self._files.append(
-					FileInstance( path,
-								  self._callbacks[ key ],
-								  self._delays[ key ] ) )
+				self._files.append(FileInstance.FileInstance( path,
+									      self._callbacks[ key ],
+									      self._delays[ key ] ) )
 				break
 
 	def on_modified( self, e ):
