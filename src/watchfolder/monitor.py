@@ -31,40 +31,34 @@ class Monitor( FileSystemEventHandler ):
 			self._stop_event.wait( 1 )
 		self._observer.join()
 
+
 	def load_conf( self, configurationFile ):
 		conf = ConfigParser.ConfigParser()
-		try:
-			conf.read( configurationFile )
-		except:
-			logging.error( " unable to read configuration file :" + configurationFile )
-
+		conf.read( configurationFile )
+		
 		try:
 			module = __import__( conf.get( 'conf', 'module' ) )
-		except:
-			logging.error( " unable to found module in configuration file :" + configurationFile )
-
+		except Exception as e:
+			logging.error( "In config file (\"%s\") - %s", configurationFile, e.message)
+			return 
+			
 		for section in conf.sections():
-			if section == "conf":
-				continue
-
-			callback = ""
-			try:
-				callback = conf.get( section, 'callback' )
-			except:
-				logging.warning( " unable to found the callback in configuration file for " + section )
+			if section == 'conf':
 				continue
 
 			try:
-				self._callbacks[section] = getattr( module, callback )
-			except:
-				logging.error( " unable to found callback (" + callback + ") for " + section )
+				callback = getattr(module, conf.get(section, 'callback'))
+				delay = conf.getint(section, 'delay')
+				self.add_extension_options(section, callback, delay)
+			except Exception as e:
+				logging.warning( "In config file (\"%s\") - %s", configurationFile, e.message)
 				continue
 
-			try:
-				self._delays[sections] = conf.getint( section, 'delay' )
-			except:
-				logging.warning( " set delay at 10 seconds for " + section )
-				self._delays[section] = 10
+
+	def add_extension_options( self, extension, callback, delay ):
+		self._callbacks[extension] = callback
+		self._delays[extension] = delay
+
 
 	def start( self ):
 		self._observer.start()

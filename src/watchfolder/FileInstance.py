@@ -27,4 +27,4 @@ class FileInstance( object ):
 			self._callback( self._path )
 		except:
 			logging.error( "could not launch " + self._path )
-			pass
+			
