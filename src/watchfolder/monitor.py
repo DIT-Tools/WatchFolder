@@ -24,10 +24,10 @@ class Monitor( FileSystemEventHandler ):
 
 	def loop( self ):
 		while not self._stop_event.isSet():
-			for file in self._files[:]:
-				if file.elapsed_time() > file.delay:
-					file.launch()
-					self._files.remove( file )
+			for f in self._files[:]:
+				if f.elapsed_time() > f.delay:
+					f.launch()
+					self._files.remove( f )
 			self._stop_event.wait( 1 )
 		self._observer.join()
 
@@ -49,13 +49,14 @@ class Monitor( FileSystemEventHandler ):
 			try:
 				callback = getattr(module, conf.get(section, 'callback'))
 				delay = conf.getint(section, 'delay')
+				
 				self.add_extension_options(section, callback, delay)
 			except Exception as e:
 				logging.warning( "In config file (\"%s\") - %s", configurationFile, e.message)
 				continue
 
 
-	def add_extension_options( self, extension, callback, delay ):
+	def add_extension_options(self, extension, callback, delay):
 		self._callbacks[extension] = callback
 		self._delays[extension] = delay
 
@@ -66,12 +67,14 @@ class Monitor( FileSystemEventHandler ):
 		self._observer.start()
 		self._thread.start()
 
+
 	def stop( self ):
 		logging.info("Monitor - Stopping")
 
 		self._observer.stop()
 		self._stop_event.set()
 		self._thread.join()
+
 
 	def on_created( self, e ):
 		if e.is_directory:
@@ -98,14 +101,16 @@ class Monitor( FileSystemEventHandler ):
 	def on_modified( self, e ):
 		if e.is_directory:
 			return
-		for file in self._files:
-			if e.src_path == file.path:
-				file.set_modification()
+		for f in self._files:
+			if e.src_path == f.path:
+				f.set_modification()
 				flag = False
 				break
 
+
 	def on_moved( self, e ):
 		pass
+
 
 	def on_deleted( self, e ):
 		pass

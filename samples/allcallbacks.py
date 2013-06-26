@@ -1,4 +1,5 @@
 import os
+import logging
 
 def dpxProcessor( filePath ):
 	logging.info("REMOVING .DPX FILE: %s", filePath)
