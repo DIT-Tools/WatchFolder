@@ -73,12 +73,24 @@ class Monitor( FileSystemEventHandler ):
 		if e.is_directory:
 			return
 		path = e.src_path
+		tmp = None
+
 		for key in self._callbacks.keys():
-			if path.endswith(key):
-				self._files.append(FileInstance.FileInstance( path,
-									      self._callbacks[ key ],
-									      self._delays[ key ] ) )
+			if key == '.all':
+				tmp = key
+				
+			elif path.endswith(key):
+				tmp = key	
 				break
+
+		if tmp:
+			self._files.append(FileInstance.FileInstance(path,
+								     self._callbacks[tmp],
+								     self._delays[tmp]))
+		else:
+			logging.warning("In file processing (\"%s\") - No option for this extension", path)
+
+
 
 	def on_modified( self, e ):
 		if e.is_directory:
