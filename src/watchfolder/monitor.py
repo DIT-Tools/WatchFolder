@@ -61,10 +61,14 @@ class Monitor( FileSystemEventHandler ):
 
 
 	def start( self ):
+		logging.info("Monitor - Starting")
+
 		self._observer.start()
 		self._thread.start()
 
 	def stop( self ):
+		logging.info("Monitor - Stopping")
+
 		self._observer.stop()
 		self._stop_event.set()
 		self._thread.join()
@@ -89,7 +93,6 @@ class Monitor( FileSystemEventHandler ):
 								     self._delays[tmp]))
 		else:
 			logging.warning("In file processing (\"%s\") - No option for this extension", path)
-
 
 
 	def on_modified( self, e ):
