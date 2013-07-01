@@ -1,3 +1,0 @@
-[submodule "src/watchdog"]
-	path = src/watchdog
-	url = git@github.com:DIT-Tools/watchdog.git
