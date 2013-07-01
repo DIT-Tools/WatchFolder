@@ -5,6 +5,7 @@ import threading
 import ConfigParser
 import FileInstance
 import logging
+import types
 from watchdog.observers import *
 from watchdog.events import *
 
@@ -22,17 +23,17 @@ class Monitor( FileSystemEventHandler ):
 					 self._path,
 					 recursive = self._is_recursive )
 
-	def loop( self ):
+	def loop(self):
 		while not self._stop_event.isSet():
 			for f in self._files[:]:
 				if f.elapsed_time() > f.delay:
 					f.launch()
-					self._files.remove( f )
-			self._stop_event.wait( 1 )
+					self._files.remove(f)
+			self._stop_event.wait(1)
 		self._observer.join()
 
 
-	def load_conf( self, configurationFile ):
+	def load_conf(self, configurationFile):
 		conf = ConfigParser.ConfigParser()
 		conf.read( configurationFile )
 		
@@ -57,9 +58,10 @@ class Monitor( FileSystemEventHandler ):
 
 
 	def add_extension_options(self, extension, callback, delay):
-		self._callbacks[extension] = callback
-		self._delays[extension] = delay
-
+		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
+			self._callbacks[extension] = callback
+			self._delays[extension] = delay
+			
 
 	def start( self ):
 		logging.info("Monitor - Starting")
@@ -79,11 +81,12 @@ class Monitor( FileSystemEventHandler ):
 	def on_created( self, e ):
 		if e.is_directory:
 			return
+
 		path = e.src_path
 		tmp = None
 
 		for key in self._callbacks.keys():
-			if key == '.all':
+			if key == '.*' or key == '*':
 				tmp = key
 				
 			elif path.endswith(key):
@@ -91,6 +94,8 @@ class Monitor( FileSystemEventHandler ):
 				break
 
 		if tmp:
+			logging.debug("In file processing (\"%s\") - File created", path)
+
 			self._files.append(FileInstance.FileInstance(path,
 								     self._callbacks[tmp],
 								     self._delays[tmp]))
@@ -101,10 +106,11 @@ class Monitor( FileSystemEventHandler ):
 	def on_modified( self, e ):
 		if e.is_directory:
 			return
+
 		for f in self._files:
 			if e.src_path == f.path:
+				logging.debug("In file processing (\"%s\") - File modified", f.path)
 				f.set_modification()
-				flag = False
 				break
 
 

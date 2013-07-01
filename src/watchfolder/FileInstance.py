@@ -24,7 +24,8 @@ class FileInstance( object ):
 
 	def launch( self ):
 		try:
-			self._callback( self._path )
+			self._callback(self._path)
 		except:
-			logging.error( "could not launch " + self._path )
-			
+			logging.error("In file processing (\"%s\") - \'%s\' can't be launched", self._path, self._callback.__name__)
+		else:
+			logging.info("In file processing (\"%s\") - \'%s\' launched", self._path, self._callback.__name__)
