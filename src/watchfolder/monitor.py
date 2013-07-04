@@ -10,18 +10,16 @@ from watchdog.observers import *
 from watchdog.events import *
 
 class Monitor( FileSystemEventHandler ):
-	def __init__( self, path, recursive = False ):
-		self._path = path
+	def __init__(self, path, recursive=False):
+	       	self._path = path
 		self._callbacks = dict()
 		self._delays = dict()
 		self._is_recursive = recursive
-		self._thread = threading.Thread( None, self.loop )
-		self._stop_event = threading.Event()
-		self._observer = Observer()
 		self._files = list()
-		self._observer.schedule( self,
-					 self._path,
-					 recursive = self._is_recursive )
+		self._thread = None
+		self._stop_event = None
+		self._observer = None
+		
 
 	def loop(self):
 		while not self._stop_event.isSet():
@@ -63,8 +61,15 @@ class Monitor( FileSystemEventHandler ):
 			self._delays[extension] = delay
 			
 
-	def start( self ):
+	def start(self):
 		logging.info("Monitor - Starting")
+
+		self._thread = threading.Thread( None, self.loop )
+		self._stop_event = threading.Event()
+		self._observer = Observer()
+		self._observer.schedule( self,
+					 self._path,
+					 recursive = self._is_recursive )
 
 		self._observer.start()
 		self._thread.start()
