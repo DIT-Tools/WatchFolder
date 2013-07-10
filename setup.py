@@ -1,5 +1,6 @@
 import os
 from setuptools import setup
+from setuptools import find_packages
 
 def read(fname):
 	return open( os.path.join( os.path.dirname( __file__ ), fname ) ).read()
@@ -9,7 +10,8 @@ setup(
 	version          = '0.1.0',
 	description      = ( 'Folder monitoring, file sequence and video treatment.' ),
 	keywords         = 'watch folder video file sequence',
-	packages         = [ 'watchfolder' ],
+	package_dir      = {'': 'src'},
+	packages         = find_packages( 'src' ),
 	long_description = read( 'README.md' ),
 	install_requires = [ 'watchdog' ]
 )
