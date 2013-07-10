@@ -7,7 +7,7 @@ import argparse
 import logging
 import logging.handlers
 from monitor import Monitor
-
+# from watchfolder.monitor import Monitor
 
 class Filter(object):
     def __init__(self, level):
@@ -37,12 +37,10 @@ def configure_root_logger(level):
 def configure_args_parser():
     parser = argparse.ArgumentParser(description='Watch Folder')
 
-    parser.add_argument(
-        '-d', '--directory', default=".",
-        help='watched directory')
-    parser.add_argument(
-        '-c', '--configuration', default="configuration.conf",
-        help='set the configuration file')
+    parser.add_argument('configFiles',
+                        help='set the configuration files',
+                        nargs='+')
+
     parser.add_argument(
         '-l', '--log', default="CRITICAL",
         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
@@ -57,17 +55,16 @@ if __name__ == '__main__':
     level = getattr(logging, args.log, None)
     configure_root_logger(level)
     
-    if (not os.access(args.directory, os.R_OK)) or (not os.access(args.directory, os.W_OK)):
-        logging.critical("Watch Folder - The specified path is not an available directory (\"%s\")", args.directory)
-        exit(-1)
-        
-    monitor = Monitor(args.directory)
-    monitor.load_conf(args.configuration)
-    monitor.start()
+    monitorsList = list()
+    for configFile in args.configFiles:
+        monitorsList.append(Monitor())
+        monitorsList[-1].load_conf(configFile)
+        monitorsList[-1].start()
     
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        monitor.stop()
+        for monitor in monitorsList:
+            monitor.stop()
 
