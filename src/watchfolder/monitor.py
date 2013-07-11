@@ -10,8 +10,8 @@ from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import *
 
 class Monitor( FileSystemEventHandler ):
-	def __init__(self, path, recursive=False):
-	       	self._path = path
+	def __init__(self, recursive=False):
+	       	self._path = None
 		self._callbacks = dict()
 		self._delays = dict()
 		self._is_recursive = recursive
@@ -33,10 +33,13 @@ class Monitor( FileSystemEventHandler ):
 
 	def load_conf(self, configurationFile):
 		conf = ConfigParser.ConfigParser()
-		conf.read( configurationFile )
+		conf.read(configurationFile)
 		
 		try:
-			module = __import__( conf.get( 'conf', 'module' ) )
+			path = conf.get('conf', 'path')
+			self.set_path_to_watch(path)
+
+			module = __import__(conf.get('conf', 'module'))
 		except Exception as e:
 			logging.error( "In config file (\"%s\") - %s", configurationFile, e.message)
 			return 
@@ -55,6 +58,14 @@ class Monitor( FileSystemEventHandler ):
 				continue
 
 
+	def set_path_to_watch(self, path):
+		if (not os.access(path, os.R_OK)) or (not os.access(path, os.W_OK)):
+		    logging.error("Monitor - The specified path is not an available directory (\"%s\")", path)
+		    return 
+
+		self._path = path
+
+
 	def add_extension_options(self, extension, callback, delay):
 		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
 			self._callbacks[extension] = callback
@@ -64,24 +75,30 @@ class Monitor( FileSystemEventHandler ):
 	def start(self):
 		logging.info("Monitor - Starting")
 
+		if self._path == None:
+			logging.warning("Monitor - Can't start: no directory specified")
+			return
+
 		self._thread = threading.Thread( None, self.loop )
 		self._stop_event = threading.Event()
 		self._observer = Observer()
-		self._observer.schedule( self,
-					 self._path,
-					 recursive = self._is_recursive )
+		self._observer.schedule(self,
+					self._path,
+					recursive = self._is_recursive)
 
 		self._observer.start()
 		self._thread.start()
 
 
-	def stop( self ):
+	def stop(self):
 		logging.info("Monitor - Stopping")
 
-		self._observer.stop()
-		self._stop_event.set()
-		self._thread.join()
-
+		try:
+			self._observer.stop()
+			self._stop_event.set()
+			self._thread.join()
+		except:
+			pass
 
 	def on_created( self, e ):
 		if e.is_directory:
