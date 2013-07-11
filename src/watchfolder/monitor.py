@@ -6,7 +6,7 @@ import ConfigParser
 import FileInstance
 import logging
 import types
-from watchdog.observers import *
+from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import *
 
 class Monitor( FileSystemEventHandler ):
