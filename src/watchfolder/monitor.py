@@ -6,12 +6,13 @@ import ConfigParser
 import FileInstance
 import logging
 import types
+
 from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import *
 
 class Monitor( FileSystemEventHandler ):
 	def __init__(self, recursive=False):
-	       	self._path = None
+		self._path = None
 		self._callbacks = dict()
 		self._delays = dict()
 		self._is_recursive = recursive
@@ -57,14 +58,12 @@ class Monitor( FileSystemEventHandler ):
 				logging.warning( "In config file (\"%s\") - %s", configurationFile, e.message)
 				continue
 
-
 	def set_path_to_watch(self, path):
 		if (not os.access(path, os.R_OK)) or (not os.access(path, os.W_OK)):
-		    logging.error("Monitor - The specified path is not an available directory (\"%s\")", path)
-		    return 
+			logging.error("Monitor - The specified path is not an available directory (\"%s\")", path)
+			return
 
 		self._path = path
-
 
 	def add_extension_options(self, extension, callback, delay):
 		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
@@ -112,15 +111,15 @@ class Monitor( FileSystemEventHandler ):
 				tmp = key
 				
 			elif path.endswith(key):
-				tmp = key	
+				tmp = key
 				break
 
 		if tmp:
 			logging.debug("In file processing (\"%s\") - File created", path)
 
-			self._files.append(FileInstance.FileInstance(path,
-								     self._callbacks[tmp],
-								     self._delays[tmp]))
+			self._files.append( FileInstance.FileInstance(path,
+								self._callbacks[tmp],
+								self._delays[tmp]))
 		else:
 			logging.warning("In file processing (\"%s\") - No option for this extension", path)
 
@@ -135,10 +134,8 @@ class Monitor( FileSystemEventHandler ):
 				f.set_modification()
 				break
 
-
 	def on_moved( self, e ):
 		pass
-
 
 	def on_deleted( self, e ):
 		pass

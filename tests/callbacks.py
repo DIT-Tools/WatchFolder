@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 
-
 import os
 
-
 def allProcessor(filePath):
-    pass
-
+	pass
 
 def movProcessor( filePath ):
-    pass
-
+	pass
 
 def dpxProcessor( filePath ):
-    pass
+	pass
