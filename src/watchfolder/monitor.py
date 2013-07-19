@@ -25,9 +25,18 @@ class Monitor( FileSystemEventHandler ):
 	def loop(self):
 		while not self._stop_event.isSet():
 			for f in self._files[:]:
-				if f.elapsed_time() > f.delay:
-					f.launch()
-					self._files.remove(f)
+				try:
+					with open(f.path, 'r') as opened:
+						if f.elapsed_time() > f.delay:
+							f.launch()
+							self._files.remove(f)
+				except IOError as e:
+					if e.errno == 26:
+						f.set_modification()
+						logging.debug("In file processing (\"%s\") - File modified (busy)", f.path)
+					else:
+						logging.debug("In file processing (\"%s\") - %s", f.path, str(e))
+					
 			self._stop_event.wait(1)
 		self._observer.join()
 
