@@ -6,6 +6,7 @@ import ConfigParser
 import FileInstance
 import logging
 import types
+import os
 
 from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import *
@@ -71,8 +72,9 @@ class Monitor( FileSystemEventHandler ):
 		if (not os.access(path, os.R_OK)) or (not os.access(path, os.W_OK)):
 			logging.error("Monitor - The specified path is not an available directory (\"%s\")", path)
 			return
-
-		self._path = path
+		
+		self._path = os.path.abspath(path)
+		
 
 	def add_extension_options(self, extension, callback, delay):
 		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
@@ -131,6 +133,16 @@ class Monitor( FileSystemEventHandler ):
 								self._delays[tmp]))
 		else:
 			logging.warning("In file processing (\"%s\") - No option for this extension", path)
+
+	
+	def parse_directory(self):
+		if (not self._path):
+			return
+
+		logging.info("Monitor - Parse the directory to watch")		
+
+		for f in os.listdir(self._path):
+			self.on_created(FileCreatedEvent(self._path + f))
 
 
 	def on_modified( self, e ):
