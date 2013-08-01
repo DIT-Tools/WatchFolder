@@ -142,7 +142,8 @@ class Monitor( FileSystemEventHandler ):
 		logging.info("Monitor - Parse the directory to watch")		
 
 		for f in os.listdir(self._path):
-			self.on_created(FileCreatedEvent(self._path + f))
+			filePath = os.path.join(self._path, f)
+			self.on_created(FileCreatedEvent(filePath))
 
 
 	def on_modified( self, e ):
