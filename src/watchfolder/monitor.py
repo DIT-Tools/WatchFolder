@@ -30,6 +30,10 @@ class Monitor( FileSystemEventHandler ):
 					with open(f.path, 'r') as opened:
 						if f.elapsed_time() > f.delay:
 							f.launch()
+							os.renames(f.path, os.path.join(self._path, 
+											'.process', 
+											os.path.basename(f.path)))
+							logging.debug("In file processing (\"%s\") - File processed and moved into .process", f.path)
 							self._files.remove(f)
 				except IOError as e:
 					if e.errno == 26:
@@ -86,7 +90,7 @@ class Monitor( FileSystemEventHandler ):
 		logging.info("Monitor - Starting")
 
 		if self._path == None:
-			logging.warning("Monitor - Can't start: no directory specified")
+			logging.error("Monitor - Can't start: no directory specified")
 			return
 
 		self._thread = threading.Thread( None, self.loop )
