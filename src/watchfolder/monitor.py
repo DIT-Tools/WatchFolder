@@ -56,8 +56,9 @@ class Monitor( FileSystemEventHandler ):
 
 			module = __import__(conf.get('conf', 'module'))
 		except Exception as e:
-			logging.error( "In config file (\"%s\") - %s", configurationFile, e.message)
-			return 
+			output = "In config file (\"%s\") - %s" %(configurationFile, e.message)
+			logging.error(output)
+			return output
 			
 		for section in conf.sections():
 			if section == 'conf':
@@ -71,14 +72,16 @@ class Monitor( FileSystemEventHandler ):
 			except Exception as e:
 				logging.warning( "In config file (\"%s\") - %s", configurationFile, e.message)
 				continue
+		return 0
 
 	def set_path_to_watch(self, path):
 		if (not os.access(path, os.R_OK)) or (not os.access(path, os.W_OK)):
-			logging.error("Monitor - The specified path is not an available directory (\"%s\")", path)
-			return
+			output = "Monitor - The specified path is not an available directory (\"%s\")" %path
+			logging.error(output)
+			return output
 		
 		self._path = os.path.abspath(path)
-		
+		return 0
 
 	def add_extension_options(self, extension, callback, delay):
 		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
@@ -90,8 +93,9 @@ class Monitor( FileSystemEventHandler ):
 		logging.info("Monitor - Starting")
 
 		if self._path == None:
-			logging.error("Monitor - Can't start: no directory specified")
-			return
+			output = "Monitor - Can't start: no directory specified"
+			logging.error(output)
+			return output
 
 		self._thread = threading.Thread( None, self.loop )
 		self._stop_event = threading.Event()
@@ -102,17 +106,19 @@ class Monitor( FileSystemEventHandler ):
 
 		self._observer.start()
 		self._thread.start()
-
+		return 0
 
 	def stop(self):
 		logging.info("Monitor - Stopping")
 
-		try:
-			self._observer.stop()
-			self._stop_event.set()
-			self._thread.join()
-		except:
-			pass
+		if self._observer:
+			try:
+				self._observer.stop()
+				self._stop_event.set()
+				self._thread.join()
+			except Exception as e:
+				return e
+		return 0
 
 	def on_created( self, e ):
 		if e.is_directory:
@@ -141,14 +147,14 @@ class Monitor( FileSystemEventHandler ):
 	
 	def parse_directory(self):
 		if (not self._path):
-			return
+			return "Monitor - Can't parse: no directory specified"
 
 		logging.info("Monitor - Parse the directory to watch")		
 
 		for f in os.listdir(self._path):
 			filePath = os.path.join(self._path, f)
 			self.on_created(FileCreatedEvent(filePath))
-
+		return 0
 
 	def on_modified( self, e ):
 		if e.is_directory:

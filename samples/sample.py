@@ -8,6 +8,7 @@ import logging
 import logging.handlers
 
 from monitor import Monitor
+#from watchfolder.monitor import Monitor
 
 class Filter(object):
 
