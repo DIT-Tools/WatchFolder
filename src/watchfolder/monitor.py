@@ -72,7 +72,7 @@ class Monitor( FileSystemEventHandler ):
 			except Exception as e:
 				logging.warning( "In config file (\"%s\") - %s", configurationFile, e.message)
 				continue
-		return 0
+		return ''
 
 	def set_path_to_watch(self, path):
 		if (not os.access(path, os.R_OK)) or (not os.access(path, os.W_OK)):
@@ -81,7 +81,7 @@ class Monitor( FileSystemEventHandler ):
 			return output
 		
 		self._path = os.path.abspath(path)
-		return 0
+		return ''
 
 	def add_extension_options(self, extension, callback, delay):
 		if isinstance(extension, str) and isinstance(callback, types.FunctionType) and isinstance(delay, int):
@@ -106,7 +106,7 @@ class Monitor( FileSystemEventHandler ):
 
 		self._observer.start()
 		self._thread.start()
-		return 0
+		return ''
 
 	def stop(self):
 		logging.info("Monitor - Stopping")
@@ -117,8 +117,8 @@ class Monitor( FileSystemEventHandler ):
 				self._stop_event.set()
 				self._thread.join()
 			except Exception as e:
-				return e
-		return 0
+				return e.message
+		return ''
 
 	def on_created( self, e ):
 		if e.is_directory:
