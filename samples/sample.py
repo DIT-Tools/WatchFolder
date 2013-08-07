@@ -24,7 +24,7 @@ def configure_root_logger( level ):
 
 	formatter = logging.Formatter( '%(asctime)s - %(levelname)s - %(message)s', '%m/%d/%Y %H:%M:%S' )
 
-	handler = logging.handlers.RotatingFileHandler( 'watchFolder.log', 'a', 1000000, 1 )
+	handler = logging.handlers.RotatingFileHandler( '/tmp/watchfolder.log', 'a', 1000000, 1 )
 	handler.addFilter( Filter( logging.CRITICAL ) )
 	handler.setFormatter( formatter )
 	root_logger.addHandler( handler )

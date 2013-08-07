@@ -26,6 +26,10 @@ class Monitor( FileSystemEventHandler ):
 	def loop(self):
 		while not self._stop_event.isSet():
 			for f in self._files[:]:
+				if f.size_gap():
+					f.set_modification()
+					logging.debug("In file processing (\"%s\") - File modified (size changed)", f.path)
+					continue					
 				try:
 					with open(f.path, 'r') as opened:
 						if f.elapsed_time() > f.delay:
