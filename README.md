@@ -19,11 +19,8 @@ Installation
 [setuptools](https://pypi.python.org/pypi/setuptools/0.7.2) installation :
 
     python setup.py install
-
-Requires also [watchdog](https://github.com/gorakhargosh/watchdog) to get system events.
-
-	pip install watchdog
-
+    
+    
 Simple usage example
 --------------------
 
@@ -32,6 +29,7 @@ configuration.conf :
 ```conf
 [conf]
 module = allcallbacks
+path = .
 
 [.dpx]
 callback = fun_dpx
