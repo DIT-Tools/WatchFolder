@@ -60,7 +60,7 @@ sample.py :
 import time
 from monitor import Monitor
 
-monitor = Monitor( '.' )
+monitor = Monitor()
 monitor.load_conf( 'configuration.conf' )
 monitor.start()
 
